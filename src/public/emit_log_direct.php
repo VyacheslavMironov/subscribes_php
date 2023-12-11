@@ -7,15 +7,19 @@ use PhpAmqpLib\Message\AMQPMessage;
 $connection = new AMQPStreamConnection('rabbitmq', 5672, 'brooks_sub', 'babka123');
 $channel = $connection->channel();
 
-$channel->exchange_declare('logs', 'fanout', false, false, false);
+$channel->exchange_declare('direct_logs', 'direct', false, false, false);
 
-$data = implode(' ', array_slice($argv, 1));
-if(empty($data)) $data = "info: Hello World!";
+$severity = $argv[1];
+if(empty($severity)) $severity = "info";
+
+$data = implode(' ', array_slice($argv, 2));
+if(empty($data)) $data = "Hello World!";
+
 $msg = new AMQPMessage($data);
 
-$channel->basic_publish($msg, 'logs');
+$channel->basic_publish($msg, 'direct_logs', $severity);
 
-echo " [x] Sent ", $data, "\n";
+echo " [x] Sent ",$severity,':',$data," \n";
 
 $channel->close();
 $connection->close();
