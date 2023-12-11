@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  app:
+    restart: always
+    build:
+      context: docker
+      dockerfile: app.Dockerfile
+    volumes:
+      - ./src:/var/www/src
+
+  composer:
+    build:
+      context: docker
+      dockerfile: composer.Dockerfile
+    volumes:
+      - ./src:/var/www/src
+
+  brocker:
+    restart: always
+    hostname: rabbitmq
+    ports:
+    - 5672:5672
+    - 15672:15672
+    build:
+      context: docker
+      dockerfile: mq.Dockerfile
+    env_file:
+      - config/mq/mq.env
